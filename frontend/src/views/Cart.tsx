@@ -13,12 +13,14 @@ const Cart = () => {
 
     useEffect(() => {
         let total = 0
-        currentCart
-            .map(
-                (cartItem) =>
-                    menu.filter((menuItem) => menuItem.itemID === cartItem)[0]
-            )
-            .map((cartItem) => (total += cartItem.price))
+        currentCart.forEach((cartItem) => {
+            total += cartItem.menuItem.price
+
+            // add prices from configurables on item
+            Object.keys(cartItem.configurables).forEach((configurable) => {
+                total += 0.5
+            })
+        })
 
         setCartTotal(total)
     }, [currentCart, menu, setCartTotal])
@@ -33,15 +35,9 @@ const Cart = () => {
 
                 <div className="my-16">
                     {currentCart.length !== 0 ? (
-                        currentCart
-                            .map(
-                                (cartItem) =>
-                                    menu.filter(
-                                        (menuItem) =>
-                                            menuItem.itemID === cartItem
-                                    )[0]
-                            )
-                            .map((cartItem) => <CartItem details={cartItem} />)
+                        currentCart.map((cartItem) => (
+                            <CartItem details={cartItem} />
+                        ))
                     ) : (
                         <p className="text-center">
                             You have nothing in your cart.

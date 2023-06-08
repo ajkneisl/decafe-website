@@ -73,6 +73,7 @@ fun Application.module() {
     install(DoubleReceive)
     install(StatusPages) {
         exception<Throwable> { call, cause ->
+            cause.printStackTrace()
             call.respondText(text = "500: $cause", status = HttpStatusCode.InternalServerError)
         }
     }

@@ -4,24 +4,51 @@ import { useAtom } from "jotai"
 import { cart } from "../../cart/Cart.atom"
 import { Button } from "../../../components/Button"
 import Modal from "../../../components/Modal"
+import { enabledConfigurables } from "../Menu.atom"
+import { Configurable } from "./Configurables"
 
 const MenuItem: React.FC<{ details: MenuItemDetails }> = ({ details }) => {
     const [currentCart, setCurrentCart] = useAtom(cart)
     const [configure, setConfigure] = useState(false)
+    const [configurables, setConfigurables] = useAtom(enabledConfigurables)
 
     // remove or add this item from the cart
     const toggleCart = () => {
-        if (currentCart.includes(details.itemID)) {
+        const itemInCart =
+            currentCart.filter(
+                (cartItem) => cartItem.menuItem.itemID === details.itemID
+            ).length > 0
+
+        if (itemInCart) {
+            // remove from cart
             setCurrentCart((current) =>
-                current.filter((item) => item != details.itemID)
+                current.filter(
+                    (cartItem) => cartItem.menuItem.itemID !== details.itemID
+                )
             )
         } else {
-            setConfigure(true)
+            // if the item has configurable items, enable menu
+            if (details?.configurables?.length > 0) {
+                setConfigure(true)
+            } else {
+                finalizeCart()
+            }
         }
     }
 
     const finalizeCart = () => {
-        setCurrentCart((current) => [...current, details.itemID])
+        const finalConfigurables = configurables
+
+        // remove disabled values
+        Object.keys(finalConfigurables).forEach((key) => {
+            if (finalConfigurables[key] === 0) delete finalConfigurables[key]
+        })
+
+        setCurrentCart((current) => [
+            ...current,
+            { menuItem: details, configurables: finalConfigurables },
+        ])
+        setConfigurables({})
         setConfigure(false)
     }
 
@@ -30,26 +57,21 @@ const MenuItem: React.FC<{ details: MenuItemDetails }> = ({ details }) => {
             <Modal
                 visible={configure}
                 setVisible={setConfigure}
-                title={`Configure ${details.itemName}`}
+                title={`Customize ${details.itemName}`}
                 controls={
                     <>
                         <Button text={"Add to Cart"} onClick={finalizeCart} />
-                        <Button text={"Exit"} onClick={() => setConfigure(false)} />
+                        <Button
+                            text={"Exit"}
+                            onClick={() => setConfigure(false)}
+                        />
                     </>
                 }
             >
-                <div className="flex flex-row items-center justify-between">
-                    <div className="flex flex-row items-center gap-4">
-                        <p>Whipped Cream</p>
-                        <p className="monospace">$0.50</p>
-                    </div>
-
-                    <input
-                        id="checked-checkbox"
-                        type="checkbox"
-                        value=""
-                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                    />
+                <div className="flex flex-col">
+                    {details?.configurables?.map((configurable) => (
+                        <Configurable id={configurable} />
+                    ))}
                 </div>
             </Modal>
 
@@ -60,7 +82,7 @@ const MenuItem: React.FC<{ details: MenuItemDetails }> = ({ details }) => {
 
             <img
                 className="self-center mb-4"
-                width="200px"
+                width="164px"
                 src={details.imageURL}
                 alt={`${details.itemName}`}
             />
@@ -69,11 +91,15 @@ const MenuItem: React.FC<{ details: MenuItemDetails }> = ({ details }) => {
                 <h3 className="text-md monospace">
                     ${details.price.toFixed(2)}
                 </h3>
+
                 <Button
                     onClick={toggleCart}
                     className="transition-all"
                     text={
-                        currentCart.includes(details.itemID)
+                        currentCart.filter(
+                            (cartItem) =>
+                                cartItem.menuItem.itemID === details.itemID
+                        ).length > 0
                             ? "Remove from Cart"
                             : "Add to Cart"
                     }

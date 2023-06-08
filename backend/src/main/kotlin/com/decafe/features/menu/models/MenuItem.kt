@@ -9,5 +9,7 @@ data class MenuItem(
     val itemID: String,
     val description: String,
     val price: Double,
-    val imageURL: String
+    val imageURL: String,
+    val size: String?,
+    val configurables: List<String>
 )

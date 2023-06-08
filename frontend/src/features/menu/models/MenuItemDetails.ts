@@ -6,5 +6,7 @@ export interface MenuItemDetails {
     itemID: string,
     description: string,
     price: number,
-    imageURL: string
+    imageURL: string,
+    size?: string
+    configurables: string[]
 }

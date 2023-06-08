@@ -10,7 +10,7 @@ import {
 import Menu from "./views/Menu"
 import { createBrowserRouter } from "react-router-dom"
 import { useAtom } from "jotai"
-import { menuItems } from "./features/menu/Menu.atom"
+import { configurables, menuItems } from "./features/menu/Menu.atom"
 import Cart from "./views/Cart"
 import { getMenu } from "./features/menu/Menu.api"
 import About from "./views/About"
@@ -44,12 +44,16 @@ const router = createBrowserRouter(
 
 function App() {
     const [menu, setMenu] = useAtom(menuItems)
+    const [, setConfigurables] = useAtom(configurables)
 
     useEffect(() => {
         loadStripe("pk_test_TYooMQauvdEDq54NiTphI7jx").then(() =>
-            getMenu().then((menu) => setMenu(menu))
+            getMenu().then(({ menu, configurables }) => {
+                setMenu(menu)
+                setConfigurables(configurables)
+            })
         )
-    }, [setMenu])
+    }, [setConfigurables, setMenu])
 
     return (
         <>
