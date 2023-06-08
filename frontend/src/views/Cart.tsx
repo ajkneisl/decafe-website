@@ -46,7 +46,7 @@ const Cart = () => {
                 </div>
 
                 <div className="mt-4 flex flex-row justify-between items-center">
-                    <h2 className="text-xl font-bold">Total: ${cartTotal}</h2>
+                    <h2 className="text-xl font-bold">Total: ${cartTotal.toFixed(2)}</h2>
                     <Button text={"Checkout"} />
                 </div>
             </div>
