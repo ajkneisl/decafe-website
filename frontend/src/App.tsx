@@ -21,11 +21,11 @@ import Footer from "./components/Footer"
 const Base = () => {
     return (
         <>
-            <Header/>
+            <Header />
             <main>
-                <Outlet/>
+                <Outlet />
             </main>
-            <Footer/>
+            <Footer />
         </>
     )
 }
